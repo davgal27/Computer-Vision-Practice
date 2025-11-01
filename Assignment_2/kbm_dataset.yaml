@@ -1,0 +1,11 @@
+path: C:/Users/daveg/Documents/Development/Computer-Vision/CV_Assignments/Assignment_2/data
+train: train/images
+val: val/images
+
+# Labels are detected automatically by replacing the "images" with "labels" so the folders have to be next to each other
+
+nc: 2
+
+names:
+  0: "mouse"
+  1: "keyboard"
