@@ -13,3 +13,5 @@ dist/
 .ipynb_checkpoints/
 Thumbs.db
 .vscode/
+*.zip
+Assignment_2/yolov8n.pt
