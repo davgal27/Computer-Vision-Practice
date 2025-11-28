@@ -151,6 +151,7 @@ def main():
             # Use color (255, 0, 0). You can use cv2.rectangle().
             # Draw into tmp_img.
             # FILL
+            cv2.rectangle(tmp_img, crop_cb.first_point, crop_cb.second_point, (255, 0, 0))
 
         # Start segmentation when user finishes cropping.
         if crop_cb.finished_cropping:
@@ -166,6 +167,7 @@ def main():
             segment_cb = GrabCutCallback(crop)
             # Assign the callback segment_cb to the 'segmentation' window.
             # FILL
+            cv2.setMouseCallback('segmentation', segment_cb.mouse_callback)
 
         # Display current segmentation if the segmentation is "live".
         if segment_cb:
@@ -189,6 +191,7 @@ def main():
             # Run cv2.grabCut() on segment_cb.img and segment_cb.mask.
             # Init the algorithm with the current content of segment_cb.mask. Run it for 2 iterations.
             # FILL
+            cv2.grabCut(segment_cb.img, segment_cb.mask, None, bg_color_model, fg_color_model, 2, cv2.GC_INIT_WITH_MASK)
 
     # If a segmentation was computed, process it.
     if segment_cb:
@@ -196,7 +199,8 @@ def main():
         # True/1 should be assigned to pixels with values cv2.GC_FGD and cv2.GC_PR_FGD.
         # Pixels with values cv2.cv2.GC_PR_BGD and cv2.GC_BGD should be assigned False/0.
         # FILL
-        binary_mask = \
+        binary_mask = np.where((segment_cb.mask == cv2.GC_FGD) | (segment_cb.mask == cv2.GC_PR_FGD), 1, 0).astype(np.uint8)
+
 
         # Add some random foreground noise pixels to binary_mask.
         positions0 = np.random.random_integers(binary_mask.shape[0] - 1, size=100)
@@ -219,11 +223,13 @@ def main():
         # Use 'kernel' in the operation.
         kernel = np.ones((3, 3), dtype=np.uint8)
         # FILL
+        binary_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_OPEN, kernel)
 
         # Remove small holes from binary_mask (noisy background pixels).
         # Use morfological operation close - dilatation followed by erosion.
         # Use 'kernel' in the operation.
         # FILL
+        binary_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_CLOSE, kernel)
 
         cv2.imshow('repaired mask', np.uint8(binary_mask) * 255)
 
@@ -231,14 +237,15 @@ def main():
         # Set background background pixels of the image to back color.
         # Use 'binary_mask' as the mask and segment_cb.img as the source image.
         # FILL
-        masked_foreground_image = \
+        masked_foreground_image = segment_cb.img.copy()
+        masked_foreground_image[binary_mask == 0] = 0
 
         cv2.imshow('masked foreground', masked_foreground_image)
 
         # Compute distance transform in order to
         # highlight all pixels 20px distant from the foreground (1 pixels in binary_mask)
         # Opencv has a function which computes distance transform efficiently.
-        distances = \
+        distances = cv2.distanceTransform(binary_mask.astype(np.uint8), cv2.DIST_L2, 5)
 
         outline_20_px = np.uint32(distances) == 20
         cv2.imshow('distance 20', np.uint8(outline_20_px) * 255)
@@ -250,9 +257,16 @@ def main():
         # Use subplot() to put both graphs into a single window.
         import matplotlib.pyplot as plt
         # FILL
-        horizontal_projection = \
-        vertical_projection = \
+        horizontal_projection = np.sum(binary_mask, axis = 1)
+        vertical_projection = np.sum(binary_mask, axis = 0)
 
+        plt.subplot(2,1,1)
+        plt.plot(horizontal_projection)
+        plt.title("Horizonal Projection")
+
+        plt.subplot(2,1,2)
+        plt.plot(vertical_projection)
+        plt.title("Vertical Projection")
         plt.show()
 
     cv2.destroyAllWindows()
