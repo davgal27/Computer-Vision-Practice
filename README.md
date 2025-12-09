@@ -1,6 +1,5 @@
 A collection of assignments demonstrating various computer vision techniques using OpenCV and related tools.
 All assignments were performed at the **Brno University of Technology**.
-## Assignments
 
 1. **Intro to OpenCV and Image/Video Manipulation**  
    Basics of image processing, video handling, and manipulation using OpenCV.
