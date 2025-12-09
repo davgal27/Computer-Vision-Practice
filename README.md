@@ -1,5 +1,3 @@
-# Computer Vision Assignments
-
 A collection of assignments demonstrating various computer vision techniques using OpenCV and related tools.
 All assignments were performed at the **Brno University of Technology**.
 ## Assignments
